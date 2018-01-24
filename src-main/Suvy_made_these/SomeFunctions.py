@@ -1,10 +1,12 @@
 from visad.python.JPythonMethods import *
+
 # A collection of Utilities for Mapes IDV Collection
 #Author: Suvarchal Kumar Cheedela, suvarchal.kumar@rsmas.miami.edu
 ############################TIME UTILS############################################
+
 def getSamplesAtTimes(grid,year=None,season=None,mon=None,day=None,hour=None,min=None,sec=None,ms=None):
-  """ Samples a grid at specified time periods, multiple arguments can be used in complex sampling 
-      eg.., using hour = 5 would return all samples corresponding  to 5 am, further specifing year = 2008 
+  """ Samples a grid at specified time periods, multiple arguments can be used in complex sampling
+      eg.., using hour = 5 would return all samples corresponding  to 5 am, further specifing year = 2008
       would give samples at 5am in year 2008
   """
   from visad import RealType
@@ -24,7 +26,7 @@ def getSamplesAtTimes(grid,year=None,season=None,mon=None,day=None,hour=None,min
      subsetgrid.setSample(i,grid[indices[i]])
   return subsetgrid
 def getSampleTimeIndices(grid,year=None,season=None,mon=None,day=None,hour=None,min=None,sec=None,ms=None):
-  """ A Helper function to get indices a grid at specified time periods, multiple arguments can be used in 
+  """ A Helper function to get indices a grid at specified time periods, multiple arguments can be used in
       complex sampling. This function returns list of indices in grid.
   """
   from visad import VisADException
@@ -41,7 +43,7 @@ def getSampleTimeIndices(grid,year=None,season=None,mon=None,day=None,hour=None,
       searchstring=searchstring+"0"+str(mon)
     else:
       searchstring=searchstring+str(mon)
-    
+
   if (str(day)!="None"):
     searchformat=searchformat+"dd"
     searchstring=searchstring+str(day)
@@ -59,7 +61,7 @@ def getSampleTimeIndices(grid,year=None,season=None,mon=None,day=None,hour=None,
     searchstring=searchstring+str(ms)
 
   if (str(season)!="None"):
-    seasons=("djf","jfm","mam","jja","son","ond","jjas")        
+    seasons=("djf","jfm","mam","jja","son","ond","jjas")
     seasmons=((12,1,2),(1,2,3),(3,4,5),(6,7,8),(9,10,11),(10,11,12),(6,7,8,9))
     if (str(season).lower() in seasons):
       montimes=getSampleTimesInFormat(grid,"MM")
@@ -89,10 +91,10 @@ def getSampleTimesInFormat(grid,timeformat,timezone="UTC",outformat="string"):
       temp.append(str(dateTimes[i].formattedString(timeformat,TIMEZONE)))
     elif (str(outformat).lower() in ("float","flt")):
       temp.append(float(dateTimes[i].formattedString(timeformat,TIMEZONE)))
-    elif (str(outformat).lower() in ("int","integer")): 
+    elif (str(outformat).lower() in ("int","integer")):
       temp.append(Integer(dateTimes[i].formattedString(timeformat,TIMEZONE)))
     else:
-      raise VisADException("Unrecognized output format") 
+      raise VisADException("Unrecognized output format")
   return temp
 def createTimeMeans(grid,meanType="None"):
   """ Create time mean of a grid at periods specified by type.
@@ -104,21 +106,21 @@ def createTimeMeans(grid,meanType="None"):
   from visad import FunctionType
   from visad import RealType
   from visad import VisADException
-  
+
   if (str(meanType).lower() in ("year","yr","years","yearly")):
      searchFormat="yyyy"
   elif (str(meanType).lower() in ("mon","month","months","monthly")):
      searchFormat="MM"
-  elif (str(meanType).lower() in ("day","d","days","daily")): 
+  elif (str(meanType).lower() in ("day","d","days","daily")):
      searchFormat="dd"
   elif (str(meanType).lower() in ("hr","hour","hours","hourly")):
-     searchFormat="hh"    
+     searchFormat="hh"
   elif (str(meanType).lower() in ("m","min","minute","minutes","minutely")):
      searchFormat="mm"
   elif (str(meanType).lower() in ("s","sec","second","seconds")):
-     searchFormat="ss"     
+     searchFormat="ss"
   else:
-       raise VisADException("Unrecognized time mean type, use yearly or monthly etc") 
+       raise VisADException("Unrecognized time mean type, use yearly or monthly etc")
   alltimes=getSampleTimesInFormat(grid,searchFormat)
   timeSet=GridUtil.getTimeSet(grid)
   timeset=GridUtil.getTimeSet(grid).getSamples()[0]
@@ -171,13 +173,13 @@ def createTimeMeans(grid,meanType="None"):
       oldtime=currt
       if(i==(len(alltimes)-1)):
         newdatalist.setSample(newind,tempdata.divide(Real(count)))
-  newParamName="Time Mean "+str(Util.cleanTypeName(GridUtil.getParamType(grid))) 
+  newParamName="Time Mean "+str(Util.cleanTypeName(GridUtil.getParamType(grid)))
   return newName(newdatalist,newParamName)
 def ddt(grid,timegradunit):
-  """ compute tendency (time derivative) using forward difference, 
-      units of returned grid are units of grid per timegradient unit 
+  """ compute tendency (time derivative) using forward difference,
+      units of returned grid are units of grid per timegradient unit
       timegradient unit can be month, day, hour, minute, seconds
-      
+
   """
   from visad import Real
   from visad import FunctionType
@@ -194,12 +196,12 @@ def ddt(grid,timegradunit):
     if (str(timegradunit).lower() in ("mon","month","months")):
        timefactor=86400.0*30
        timegradunit="month"
-    elif (str(timegradunit).lower() in ("day","d","days")): 
+    elif (str(timegradunit).lower() in ("day","d","days")):
        timefactor=86400.0
        timegradunit="day"
     elif (str(timegradunit).lower() in ("hr","hour","hours")):
        timefactor=3600.0
-       timegradunit="hr"     
+       timegradunit="hr"
     elif (str(timegradunit).lower() in ("m","min","minute","minutes")):
        timefactor=60.0
        timegradunit="min"
@@ -223,7 +225,7 @@ def ddt(grid,timegradunit):
     newunit = Util.parseUnit("("+unitname+")/"+str(timegradunit))
     newType = Util.makeRealType("ddt of "+getVarName(grid), newunit)
   else:
-    raise VisADException("Well, this data is not a time series, hard to do a time derivative!")  
+    raise VisADException("Well, this data is not a time series, hard to do a time derivative!")
   return GridUtil.setParamType(ddtgrid,newType,0)
 
 def anomalyFromTimeMeans(grid,meanType="None"):
@@ -240,19 +242,19 @@ def anomalyFromTimeMeans(grid,meanType="None"):
   from visad.Data import NO_ERRORS
   from visad import VisADException
   timeMean=createTimeMeans(grid,meanType)
-  grid.subtract(timeMean)  
+  grid.subtract(timeMean)
   if (str(meanType).lower() in ("mon","month","months","montly")):
      searchFormat="MM"
-  elif (str(meanType).lower() in ("day","d","days","daily")): 
+  elif (str(meanType).lower() in ("day","d","days","daily")):
      searchFormat="dd"
   elif (str(meanType).lower() in ("hr","hour","hours","hourly")):
-     searchFormat="hh"    
+     searchFormat="hh"
   elif (str(meanType).lower() in ("m","min","minute","minutes","minutely")):
      searchFormat="mm"
   elif (str(meanType).lower() in ("s","sec","second","seconds")):
-     searchFormat="ss"     
+     searchFormat="ss"
   else:
-       raise VisADException("Unrecognized time mean type, use yearly or monthly etc") 
+       raise VisADException("Unrecognized time mean type, use yearly or monthly etc")
   return grid.subtract(timeMean,NEAREST_NEIGHBOR,NO_ERRORS)
 def getTimeDict(grid):
   """ A helper function to return timestamps of grid as dictionary of years, months etc.
@@ -270,9 +272,9 @@ def getTimeDict(grid):
     hh=[]
     ss=[]
     YYYYMMdd=[]
-    HHmmss=[]   
+    HHmmss=[]
     for i in range(ds.getDomainSet().getLength()):
-      print formatUtcDate(dateTimes[i],"DD",DateTime.DEFAULT_TIMEZONE)   
+      print formatUtcDate(dateTimes[i],"DD",DateTime.DEFAULT_TIMEZONE)
       YYYY.append(str(dateTimes[i].formattedString("yyyy",DateTime.DEFAULT_TIMEZONE)))
       MM.append(str(dateTimes[i].formattedString("MM",DateTime.DEFAULT_TIMEZONE)))
       dd.append(str(dateTimes[i].formattedString("dd",DateTime.DEFAULT_TIMEZONE)))
@@ -308,7 +310,7 @@ def correlationwith1d(variable,variable1d):
   return corr1d
 
 def correlation(xvar,yvar):
-  """ Computes time correlation at each grid point in xvar with corresponding grid 
+  """ Computes time correlation at each grid point in xvar with corresponding grid
       in yvar.
   """
   if(GridUtil.isTimeSequence(xvar) and GridUtil.isTimeSequence(yvar) and GridUtil.getTimeSet(xvar).getLength() == GridUtil.getTimeSet(yvar).getLength()):
@@ -324,7 +326,7 @@ def correlation(xvar,yvar):
   return noUnit(xydevsumbyn)/noUnit((xstddev**0.5)*(ystddev**0.5))
 #######################################AREA UTILS###################################################
 def areaWeights(grid):
-  """ Computes area weights of a grid and returns the grid with 
+  """ Computes area weights of a grid and returns the grid with
       weights at each grid.
   """
   from visad import Real
@@ -332,17 +334,17 @@ def areaWeights(grid):
   areaSum=sum(areaW.getValues()[0])
   return areaW.divide(Real(areaSum))
 def xyAreaAverage(grid):
-  """ Computes Area Average of a grid and returns a grid with area 
+  """ Computes Area Average of a grid and returns a grid with area
       averaged value at all grid points.
-  """ 
+  """
   oldtype=GridUtil.getParamType(grid)
   xyAavg=xsum(ysum(grid*areaWeights(grid)))
   return GridUtil.setParamType(xyAavg,oldtype,0)
 def deviationXY(grid):
   """ Computes deviation from grid grid area average value of a grid
       and returns a grid with deviation from the area averaged value.
-  """ 
-  return sub(grid,xyAreaAverage(grid)) 
+  """
+  return sub(grid,xyAreaAverage(grid))
 def anomalyFromTimeMeans(grid):
   """ Computes deviation from time mean at each grid point.
   """
@@ -363,7 +365,7 @@ def computeGridAreaAverage(variable):
   aavg=sum(test.getValues()[0])/len(test.getValues()[0])
   return aavg
 def rebin(grid,newGrid):
-  """ Rebin or regrid a grid based on coordinates of newGrid using bilinear 
+  """ Rebin or regrid a grid based on coordinates of newGrid using bilinear
       interpolation
   """
   from visad import Data
@@ -426,21 +428,21 @@ def pverticalIntegral(grid):
   return vavg
 
 def ddz(grid):
-  """ Computes a vertical coordinate derivative of grid specifed. 
+  """ Computes a vertical coordinate derivative of grid specifed.
   """
   from visad import VisADException
-  #doesnt work well to raise exception for case when one level is present, 
+  #doesnt work well to raise exception for case when one level is present,
   #in that case does derivative for longitude
   if (GridUtil.is3D(GridUtil.getSpatialDomain(grid))):
-    leveldim=GridUtil.getSpatialDomain(grid).getManifoldDimension()    
+    leveldim=GridUtil.getSpatialDomain(grid).getManifoldDimension()
   else:
     raise VisADException("Not a 3D Spatial Grid")
   return GridMath.partial(grid,(leveldim-1))
 
 def smooth3d(grid,smooth_fn,smooth_val=None):
-    """ Returns a smoothend field given IDV smoothers like "CIRC","RECT","GWFS" 
-        and corresponding smoothing values. 
-        For smoothers like SMS9 no smoothing value is required.  
+    """ Returns a smoothend field given IDV smoothers like "CIRC","RECT","GWFS"
+        and corresponding smoothing values.
+        For smoothers like SMS9 no smoothing value is required.
         Returns original field if function doesnt exist or invalid smoothing value.
     """
     from visad import FlatField
@@ -451,7 +453,7 @@ def smooth3d(grid,smooth_fn,smooth_val=None):
         from visad import FlatField
         levels=getLevels(grid_sample)
         tempFF=FlatField(grid_sample.getType(),grid_sample.getDomainSet())
-    
+
         dims=range(len(grid_sample.getDomainSet().getLengths()))
         leveldim=GridUtil.getSpatialDomain(grid_sample).getManifoldDimension()
         dims.pop(leveldim-1)
@@ -459,7 +461,7 @@ def smooth3d(grid,smooth_fn,smooth_val=None):
         for i in dims:
             latlonlen=latlonlen*len(set(grid_sample.getDomainSet().getDoubles()[i]))
         vals=grid_sample.getValues()[0]
-    
+
         levsF=grid_sample.getDomainSet().getDoubles()[2] #must be manifold dimension
         for level in levels:
             levslice=GridUtil.make2DGridFromSlice(GridUtil.sliceAtLevel(grid_sample,level))
@@ -485,11 +487,11 @@ def smooth3d(grid,smooth_fn,smooth_val=None):
         return smoothFF(grid,smooth_fn,smooth_val)
 class Interpolate(object):
      def __init__(self, x_list, y_list,Strict=False):
-        if Strict==0: #and any([y - x <= 0 for x, y in zip(x_list, x_list[1:])]):    
+        if Strict==0: #and any([y - x <= 0 for x, y in zip(x_list, x_list[1:])]):
             [x_list,y_list]=self.find_monotonic_segment(x_list,y_list)
         elif any([y - x <= 0 for x, y in zip(x_list, x_list[1:])]):
-            x_list=[float('NaN')] 
-            y_list=[float('NaN')]          
+            x_list=[float('NaN')]
+            y_list=[float('NaN')]
         x_list = self.x_list = map(float, x_list)
         y_list = self.y_list = map(float, y_list)
         intervals = zip(x_list, x_list[1:], y_list, y_list[1:])
@@ -512,7 +514,7 @@ class Interpolate(object):
            return self.y_list[i] + self.slopes[i] * (x - self.x_list[i])
 ###############################MISC UTILS###############################################
 def createNewUnit(field,unit,multiplyfactor=1.0):
-  """ creates a new unit that cannot be changed by IDV, eg..change units of 
+  """ creates a new unit that cannot be changed by IDV, eg..change units of
       precipitation from kg/m2s-1 to mm/day
   """
   from visad import BaseUnit
@@ -523,7 +525,7 @@ def createNewUnit(field,unit,multiplyfactor=1.0):
   return GridUtil.setParamType(field,newtype,0)
 
 def makeTimeComposite(variable,avgvariable,minvalue,maxvalue):
-  """ Make a time composite of grid supplied(variable) between min max ranges 
+  """ Make a time composite of grid supplied(variable) between min max ranges
       of a 1d avg variable supplied.
   """
   from visad import FunctionType
@@ -544,7 +546,7 @@ def makeTimeComposite(variable,avgvariable,minvalue,maxvalue):
   if (len(newTimeIndexList) <  1):
     raise VisADException("No Matches found to make a time composite")
   newTimes=Gridded1DDoubleSet(RealType.Time,[newTimeValues],len(newTimeValues),None,timeSet.getSetUnits(),None)
-  compvariable = FieldImpl(FunctionType(RealType.Time, variable.getSample(0).getType()), newTimes) 
+  compvariable = FieldImpl(FunctionType(RealType.Time, variable.getSample(0).getType()), newTimes)
   for i in range(len(newTimeValues)):
      compvariable.setSample(i,variable[newTimeIndexList[i]])
   return compvariable
@@ -566,11 +568,11 @@ def makeTimeCompositeWindow(avgvariable,variable,minvalue,maxvalue,minwindow,max
   for i in range(timeSet.getLength()):
     avg=getAverage(avgvariable.getSample(i).getFloats()[0])
     if  minvalue < avg <=maxvalue:
-      for j in range(minwindow,0,-1):      
+      for j in range(minwindow,0,-1):
         if (len(newTimeValues)==0):
             prevTime=0
         else:
-            prevTime=newTimeValues[-1] 
+            prevTime=newTimeValues[-1]
         if (i-j >=0 and timeSet[i-j].getValue() > prevTime):
           newTimeIndexList.add(Integer(i-j))
           newTimeValues.append(timeSet[i-j].getValue())
@@ -589,7 +591,7 @@ def makeTimeCompositeWindow(avgvariable,variable,minvalue,maxvalue,minwindow,max
   return compvariable
 def remove_duplicates(values):
   """ A helper function to remove dumplicates, from a list, not necessary
-      easier to change list to a set and backwards. 
+      easier to change list to a set and backwards.
   """
   output = []
   seen = set()
@@ -603,12 +605,12 @@ def isEnsembleGrid(grid):
        Checks both (time,ensemble) and(ensemble...) grids
   """
   #GridUtil.getSequenceType(grid).toString().lower()=="ensemble"
-  from visad import RealType 
+  from visad import RealType
   enscheck1=(Util.getDomainSet(grid).getType().getDomain().getComponent(0).toString().lower()=="ensemble")
   enscheck2=(Util.getDomainSet(grid.getSample(0)).getType().getDomain().getComponent(0).toString().lower()=="ensemble")
-  return (enscheck1 or enscheck2) 
+  return (enscheck1 or enscheck2)
 def getVarName(grid):
-  """ A helper function to get raw variable name in side a grid"""     
+  """ A helper function to get raw variable name in side a grid"""
   return str(Util.cleanTypeName(GridUtil.getParamType(grid).getComponent(0).getName()))
 def getRawTimes(grid):
   """ A helper function to get all times inside a grid, returns a list of times
@@ -635,11 +637,11 @@ def cdo(variable,user_cdo_options):
   import commands
   from visad import VisADException
   rand = Random()
-  
+
   file_prefix=rand.nextInt(9999)
   file_inp=str(file_prefix)+"_inp.nc"
 
-  exportGridToNetcdf(variable,file_inp) 
+  exportGridToNetcdf(variable,file_inp)
 
   timeunit=GridUtil.getTimeSet(variable).getSetUnits()[0]
   if (str(timeunit).split()[0]=="s"):
@@ -673,7 +675,7 @@ def cdo_bandpass(variable,minday,maxday):
    filteredvariable=cdo(variable,user_options)
    return filteredvariable
 def cdo_lowpass(variable,maxday):
-   """ Do a low pass filter in time using CDOs.Before the filter 
+   """ Do a low pass filter in time using CDOs.Before the filter
        is applied data is detrended and feb 29, if exists will be deleted.
        maxday argument needs to be in units of days.
        Note: Also needs ncatted from NCO's also to be on your path.
@@ -684,7 +686,7 @@ def cdo_lowpass(variable,maxday):
    filteredvariable=cdo(variable,user_options)
    return filteredvariable
 def cdo_highpass(variable,minday):
-   """ Do a high pass filter in time using CDOs.Before the filter 
+   """ Do a high pass filter in time using CDOs.Before the filter
        is applied data is detrended and feb 29, if exists will be deleted.
        maxday argument needs to be in units of days.
        Note: Also needs ncatted from NCO's also to be on your path.
@@ -700,7 +702,7 @@ def cdo_timecor(variable1,variable2):
    """
    #resampleGrid(variable1,variable2)
    corr=cdo2(variable1,variable2,"timcor")
-   return corr 
+   return corr
 def cdo_timecovar(variable1,variable2):
    """ Computes a covariance in time at each grid point using CDOs.
        Note: Also needs ncatted from NCO's also to be on your path.
@@ -709,8 +711,8 @@ def cdo_timecovar(variable1,variable2):
    corr=cdo2(variable1,variable2,"timcovar")
    return corr
 def cdoSubGrid(variable,user_nlon,user_nlat):
-  """ Computes a subgrid difference between a fine resolution and 
-      coarsened resolution grid (from regriding the 
+  """ Computes a subgrid difference between a fine resolution and
+      coarsened resolution grid (from regriding the
       original grid to user_nlon and user_nlat) using CDOs.Works
       best for regular grids.
       Note: Also needs ncatted from NCO's also to be on your path.
@@ -726,11 +728,11 @@ def cdoSubGrid(variable,user_nlon,user_nlat):
 	pass
   from visad import VisADException
   rand = Random()
-  
+
   file_prefix=rand.nextInt(9999)
   file_inp=str(file_prefix)+"_inp.nc"
 
-  exportGridToNetcdf(variable,file_inp) 
+  exportGridToNetcdf(variable,file_inp)
 
   timeunit=GridUtil.getTimeSet(variable).getSetUnits()[0]
   if (str(timeunit).split()[0]=="s"):
@@ -763,7 +765,7 @@ def MAE(gridA,gridB):
   return diff.abs()
 def subsetGridTimes(gridA,gridB):
   """  A function to subset gridA by times of gridB.
-       duplicate of another function subsetAtTimesofB 
+       duplicate of another function subsetAtTimesofB
   """
   timeSet=GridUtil.getTimeSet(gridB)
   indices=getSampleTimeIndices(grid,year,season,mon,day,hour,min,sec,ms)
@@ -842,13 +844,13 @@ def cdo2(variable1,variable2,user_cdo_options):
   import commands
   from visad import VisADException
   rand = Random()
-  
+
   file_prefix=rand.nextInt(9999)
   file_inp1=str(file_prefix)+"_inp1.nc"
   file_inp2=str(file_prefix)+"_inp2.nc"
-  exportGridToNetcdf(variable1,file_inp1) 
-  exportGridToNetcdf(variable2,file_inp2) 
- 
+  exportGridToNetcdf(variable1,file_inp1)
+  exportGridToNetcdf(variable2,file_inp2)
+
   timeunit1=GridUtil.getTimeSet(variable1).getSetUnits()[0]
   timeunit2=GridUtil.getTimeSet(variable2).getSetUnits()[0]
   if (str(timeunit1).split()[0]=="s"):
@@ -856,7 +858,7 @@ def cdo2(variable1,variable2,user_cdo_options):
     nco_status=commands.getstatusoutput("ncatted -a units,time,m,c,"+"\""+newtimeunit1+"\""+" "+file_inp1)
     if (nco_status[0]):
         raise VisADException(nco_status[1])
-     
+
   if (str(timeunit2).split()[0]=="s"):
     newtimeunit2=str(timeunit2).replace("s","seconds",1)
     nco_status=commands.getstatusoutput("ncatted -a units,time,m,c,"+"\""+newtimeunit2+"\""+" "+file_inp2)
@@ -873,18 +875,18 @@ def cdo2(variable1,variable2,user_cdo_options):
   return varout
 #=============================Utils with additional Displays=====================================
 def Moisture_Flux_Divergence(Q,U,V):
-   """ Computes vertical integrated Moisture flux divergence and makes 1 display internally 
+   """ Computes vertical integrated Moisture flux divergence and makes 1 display internally
        and returns a moisture flux divergence vector as output.
    """
    QU=verticalIntegral(Q.multiply(U))
    QV=verticalIntegral(Q.multiply(V))
    divergence=horizontalDivergence(Q, U, V)
    Idivergence=pverticalIntegral(divergence)
-   createDisplay('planviewcolor',Idivergence,"Integrated Divergence") 
+   createDisplay('planviewcolor',Idivergence,"Integrated Divergence")
    return makeTrueVector(QU, QV)
 
 def Moisture_Flux_Divergence(Q,V):
-   """ Computes vertical integrated Moisture flux divergence and makes 1 display internally 
+   """ Computes vertical integrated Moisture flux divergence and makes 1 display internally
        and returns a moisture flux divergence vector as output.
        this function takes a derived field vector as input.
    """
@@ -894,7 +896,7 @@ def Moisture_Flux_Divergence(Q,V):
    QV=verticalIntegral(Q.multiply(v))
    divergence=horizontalDivergence(Q, u, v)
    Idivergence=pverticalIntegral(divergence)
-   createDisplay('planviewcolor',Idivergence,"Integrated Divergence") 
+   createDisplay('planviewcolor',Idivergence,"Integrated Divergence")
    return makeTrueVector(QU, QV)
 
 def zonal_filter_fft(grid,minwave,maxwave):
@@ -902,12 +904,12 @@ def zonal_filter_fft(grid,minwave,maxwave):
         maxwave can be a large number to filter all smaller wavenumbers.
         for eg.., using minwave =1,10000, removes all variations zonally but mean
         using minwave=0 maxwave=0 removes zonal mean from the grid.
-    """ 
+    """
     filtered_grid=grid.clone()
     def wavefilter(tempF,minwave,maxwave):
         if GridUtil.is3D(grid):
             raise VisADException('This implementation of filtering supports only 2d,eg.., lat-lon grids')
-        
+
         tempFF=domainFactor(tempF,int(not(GridUtil.isLatLonOrder(tempF))))
         for j,lat in enumerate(tempFF.domainEnumeration()):
             fieldfft=fft(field(tempFF.evaluate(lat).getFloats()[0]))
@@ -915,7 +917,7 @@ def zonal_filter_fft(grid,minwave,maxwave):
             imags=fieldfft.getFloats()[1]
             if maxwave==None or int(maxwave)>len(reals):
                 maxwave=len(reals)-1
-            
+
             for i in range(int(minwave),int(maxwave)+1):
                 reals[i]=0.0
                 imags[i]=0.0
@@ -923,9 +925,9 @@ def zonal_filter_fft(grid,minwave,maxwave):
             fieldifft=ifft(fieldfft)
             tempFF[j].setSamples(GridUtil.getParam(fieldifft,0).getFloats())
         return tempFF.domainMultiply()
-    
+
     if GridUtil.isTimeSequence(grid):
-        for i in range(len(grid)): 
+        for i in range(len(grid)):
             filtered_grid.setSample(i,wavefilter(grid.getSample(i),minwave,maxwave))
     elif grid.isFlatField():
         filtered_grid=wavefilter(grid,minwave,maxwave)
@@ -934,22 +936,22 @@ def zonal_filter_fft(grid,minwave,maxwave):
     return filtered_grid
 def fillGridUniform(templategrid,user_min,user_max,user_units="default"):
     """ Returns a grid with values sampled from uniform distrubuition(
-        user_min,user_max). user_units can be change units of returned grid. 
-        This also serves as a template code for creating grids sampled from 
-        different distributions. 
+        user_min,user_max). user_units can be change units of returned grid.
+        This also serves as a template code for creating grids sampled from
+        different distributions.
     """
-    
+
     minvalue=float(user_min)
     maxvalue=float(user_max)
 
     def fillUniform(gridFF,minvalue,maxvalue):
         import random
-        tempFF=FlatField(gridFF.getType(),gridFF.getDomainSet())#put units here 
+        tempFF=FlatField(gridFF.getType(),gridFF.getDomainSet())#put units here
         #also fun the return by input grid
         vals=[random.uniform(minvalue,maxvalue) for itm in range(len(gridFF.getFloats()[0]))]
         tempFF.setSamples([vals])
         return tempFF
-    
+
     if GridUtil.isTimeSequence(templategrid):
         uniformG=templategrid.clone()
         for j,time in enumerate(templategrid.domainEnumeration()):
@@ -968,26 +970,26 @@ def fillGridConstant(templategrid,user_value):
             newgrid.setSample(i,replace(grid.getSample(0),value))
     else:
         newgrid=replace(grid,Double(value))
-        
+
     return newgrid
 def fillGridNormal(templategrid,user_mean,user_std,user_units="default"):
     """ Returns a grid with values sampled from normal distrubuition(
-        user_mean,user_std). user_units can be change units of returned grid. 
-        This also serves as a template code for creating grids sampled from 
-        different distributions. 
+        user_mean,user_std). user_units can be change units of returned grid.
+        This also serves as a template code for creating grids sampled from
+        different distributions.
     """
-    
+
     minvalue=float(user_min)
     maxvalue=float(user_max)
 
     def fillNormal(gridFF,minvalue,maxvalue):
         import random
-        tempFF=FlatField(gridFF.getType(),gridFF.getDomainSet())#put units here 
+        tempFF=FlatField(gridFF.getType(),gridFF.getDomainSet())#put units here
         #also fun the return by input grid
         vals=[random.gauss(minvalue,maxvalue) for itm in range(len(gridFF.getFloats()[0]))]
         tempFF.setSamples([vals])
         return tempFF
-    
+
     if GridUtil.isTimeSequence(templategrid):
         uniformG=templategrid.clone()
         for j,time in enumerate(templategrid.domainEnumeration()):

@@ -1,2 +1,1 @@
-## These can be deployed by placing them at the URL 
-http://www.rsmas.miami.edu/users/bmapes/MapesIDVcollection.jar
+## The one called MapesIDVcollection.jar is deployed: its URL is wired into Unidata's plugin 
